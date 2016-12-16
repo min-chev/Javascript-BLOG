@@ -74,7 +74,6 @@ module.exports = {
         res.render('user/login');
     },
     loginPost: (req, res) => {
-
         let loginArgs = req.body;
         User.findOne({email: loginArgs.email}).then(user => {
             if (!user ||!user.authenticate(loginArgs.password)) {
@@ -86,21 +85,19 @@ module.exports = {
 
             req.logIn(user, (err) => {
                 if (err) {
-                    console.log(err);
                     res.render('/user/login', {error: err.message});
                     return;
                 }
 
                 let returnUrl = '/';
-
-                if(req.session.returnUrl){
+                if(req.session.returnUrl) {
                     returnUrl = req.session.returnUrl;
-                    delete  req.session.returnUrl;
+                    delete req.session.returnUrl;
                 }
+
                 res.redirect(returnUrl);
             })
         })
-
     },
     logOut: (req, res) => {
         req.logOut();

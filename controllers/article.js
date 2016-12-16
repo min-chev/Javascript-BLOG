@@ -151,8 +151,9 @@ module.exports = {
 
         Article.findOneAndRemove({_id: id}).populate('author').then(article => {
 
+
             User.findById(this.author).then(user => {
-                if (user) {
+                if(user){
                     user.articles.remove(this.id);
                     user.save();
                 }

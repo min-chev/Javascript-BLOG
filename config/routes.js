@@ -1,7 +1,7 @@
 const userController = require('./../controllers/user');
 const articleController = require('./../controllers/article');
 const homeController = require('./../controllers/home');
-
+const adminController = require('./../controllers/admin/admin');
 
 
 
@@ -31,6 +31,29 @@ module.exports = (app) => {
     app.get('/article/delete/:id', articleController.deleteGet);
 
     app.post('/article/delete/:id', articleController.deletePost);
+
+
+
+    app.use((req, res, next) => {
+        if(req.isAuthenticated()){
+            req.user.isInRole('Admin').then(isAdmin => {
+                if(isAdmin){
+                    next();
+                }else{
+                    res.redirect('/')
+                }
+
+            })
+        }
+        else {
+            res.redirect('/user/login')
+        }
+    });
+    app.get('/admin/user/all', adminController.user.all);
+
+    app.get('/admin/user/edit/:id', adminController.user.editGet);
+
+    app.post('/admin/user/edit/:id', adminController.user.editPost);
 
 
 
