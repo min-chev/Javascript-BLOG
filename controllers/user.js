@@ -41,27 +41,25 @@ module.exports = {
 
                     userObject.roles = roles;
 
-
                     User.create(userObject).then(user => {
                         role.users.push(user);
                         role.save(err => {
                             if(err){
                                 registerArgs.error = err.message;
                                 res.render('user/register', registerArgs);
-                                return;
-
                             }
                             else {
+                                req.logIn(user, (err) => {
+                                    if(err){
+                                        registerArgs.err = err.message;
+                                        res.render('user/register', registerArgs);
+                                        return;
+                                    }
+                                    res.redirect('/');
+                                })
 
                             }
-                        req.logIn(user, (err) => {
-                            if(err){
-                                registerArgs.err = err.message;
-                                res.render('user/register', registerArgs);
-                                return;
-                            }
-                            res.redirect('/');
-                        })
+
                     })
                 });
 
@@ -77,7 +75,6 @@ module.exports = {
     },
     loginPost: (req, res) => {
 
-
         let loginArgs = req.body;
         User.findOne({email: loginArgs.email}).then(user => {
             if (!user ||!user.authenticate(loginArgs.password)) {
@@ -89,10 +86,18 @@ module.exports = {
 
             req.logIn(user, (err) => {
                 if (err) {
+                    console.log(err);
                     res.render('/user/login', {error: err.message});
                     return;
                 }
-                res.redirect('/');
+
+                let returnUrl = '/';
+
+                if(req.session.returnUrl){
+                    returnUrl = req.session.returnUrl;
+                    delete  req.session.returnUrl;
+                }
+                res.redirect(returnUrl);
             })
         })
 

@@ -7,5 +7,14 @@ let articleSchema = mongoose.Schema({
     date : {type: Date, default: Date.now()},
 });
 
+
+articleSchema.method({
+    prepareDelete: function () {
+
+
+    },
+
+});
+
 const Article = mongoose.model('Article', articleSchema);
 module.exports = Article;

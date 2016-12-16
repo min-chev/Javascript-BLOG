@@ -41,20 +41,56 @@ module.exports = {
         let id = req.params.id;
 
         Article.findById(id).populate('author').then(article => {
-            res.render('article/details', article)
-        })
+            if(!req.user) {
+                res.render('article/details',{article: article, isUserAuthorized: false});
+                return;
+            }
+
+
+            req.user.isInRole('Admin').then(isAdmin => {
+                let isUserAuthorized = isAdmin||req.user.isAuthor(article);
+                res.render('article/details',{article: article, isUserAuthorized: isUserAuthorized});
+
+            })
+        });
+
+
     },
 
     editGet: (req, res) => {
         let id = req.params.id;
 
+        if(!req.isAuthenticated()) {
+            let returnUrl = `/article/edit/${id}`;
+            req.session.returnUrl = returnUrl;
+
+            res.redirect('/user/login');
+
+
+        }
         Article.findById(id).then(article => {
+            req.user.isInRole('Admin').then(isAdmin => {
+                if(!isAdmin && !req.user.isAuthor(article)){
+                    res.redirect('/');
+                    return;
+                }
+            });
             res.render('article/edit', article);
         })
+
     },
 
     editPost: (req, res) => {
         let id = req.params.id;
+
+        if(!req.isAuthenticated()) {
+            let returnUrl = `/article/edit/${id}`;
+            req.session.returnUrl = returnUrl;
+
+            res.redirect('/user/login');
+
+
+        }
 
         let articleArgs = req.body;
 
@@ -82,7 +118,21 @@ module.exports = {
     deleteGet: (req, res) => {
         let id = req.params.id;
 
+        if(!req.isAuthenticated()) {
+            let returnUrl = `/article/delete/${id}`;
+            req.session.returnUrl = returnUrl;
+
+            res.redirect('/user/login');
+
+
+        }
         Article.findById(id).then(article => {
+            req.user.isInRole('Admin').then(isAdmin => {
+                if(!isAdmin&&!req.user.isAuthor(article)){
+                    res.redirect('/');
+                    return;
+                }
+            });
             res.render('article/delete', article);
         })
     },
@@ -90,23 +140,25 @@ module.exports = {
     deletePost: (req, res) => {
         let id = req.params.id;
 
-        Article.findOneAndRemove({_id:id}).populate('author').then(article=> {
-            let author = article.author;
+        if (!req.isAuthenticated()) {
+            let returnUrl = `/article/delete/${id}`;
+            req.session.returnUrl = returnUrl;
 
-            //index of the article's id in author's articles
-            let index = author.articles.indexOf(article.id);
+            res.redirect('/user/login');
+            return;
+        };
 
-            if(index<0){
-                let errorMsg = 'Article was not found for that author!';
-                res.render('article/delete', {error: errorMsg});
-            }else {
-                //remove 1 element after index(inclusive)
-                author.articles.splice(index, 1);
-                author.save().then(user => {
-                    res.redirect('/');
-                })
-            }
-        })
+
+        Article.findOneAndRemove({_id: id}).populate('author').then(article => {
+
+            User.findById(this.author).then(user => {
+                if (user) {
+                    user.articles.remove(this.id);
+                    user.save();
+                }
+            });
+            res.redirect('/');
+        });
     }
 };
 

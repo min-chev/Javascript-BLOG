@@ -15,33 +15,62 @@ let userSchema = mongoose.Schema(
 );
 
 userSchema.method({
-    authenticate: function(password){
+    authenticate: function (password){
         let inputPasswordHash = encryption.hashPassword(password, this.salt);
         if(inputPasswordHash=== this.passwordHash){
             return true;
+        }else {
+            return false;
         }
+    },
+    isAuthor: function (article) {
+        if(!article){
+            return false;
+        }
+
+        let isAuthor = article.author.equals(this.id);
+
+        return isAuthor;
+    },
+
+    isInRole: function (roleName) {
+          return Role.findOne({name: roleName}).then(role => {
+              if(!role){
+                  return false;
+              }
+
+              let isInRole = this.roles.indexOf(role.id) !== -1;
+              return isInRole;
+
+          })
+
+
     }
-});
+    }
+
+
+
+);
 
 const User  = mongoose.model('User', userSchema);
 module.exports = User;
 
 
 module.exports.seedAdmin = () => {
- let email = "admin@softuni.bg";
+ let email = 'admin@softuni.bg';
     User.findOne({email: email}).then(admin => {
 
         if(!admin){
             Role.findOne({name: 'Admin'}).then(role => {
 
                 let salt = encryption.generateSalt();
-                let passwordHash = encryption.hashPassword(admin,salt);
+                let passwordHash = encryption.hashPassword('admin',salt);
 
                 let roles = [];
 
                 roles.push(role.id);
 
-                let userObject = {
+                let user = {
                     email: email,
                     passwordHash : passwordHash,
                     fullName : 'Admin',
@@ -50,7 +79,7 @@ module.exports.seedAdmin = () => {
                     roles: roles
                 };
 
-                User.create(userObject).then(user => {
+                User.create(user).then(user => {
                     role.users.push(user.id);
                     role.save(err => {
                         if(err){
