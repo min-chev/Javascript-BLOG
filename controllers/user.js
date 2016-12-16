@@ -1,4 +1,5 @@
 const User = require("./../models/User");
+const Role = require("./../models/Role");
 const encryption = require("../utilities/encryption.js");
 
 
@@ -33,17 +34,40 @@ module.exports = {
                     salt : salt,
                 };
 
-                User.create(userObject).then(user => {
-                    req.logIn(user, (err) => {
-                        if(err){
-                            registerArgs.err = err.message;
-                            res.render('user/register', registerArgs);
-                            return;
-                        }
-                        res.redirect('/');
-                    })
-                })
 
+                let roles = [];
+                Role.findOne({name: 'User'}).then(role=> {
+                        roles.push(role.id);
+
+                    userObject.roles = roles;
+
+
+                    User.create(userObject).then(user => {
+                        role.users.push(user);
+                        role.save(err => {
+                            if(err){
+                                registerArgs.error = err.message;
+                                res.render('user/register', registerArgs);
+                                return;
+
+                            }
+                            else {
+
+                            }
+                        req.logIn(user, (err) => {
+                            if(err){
+                                registerArgs.err = err.message;
+                                res.render('user/register', registerArgs);
+                                return;
+                            }
+                            res.redirect('/');
+                        })
+                    })
+                });
+
+
+
+            })
             }
         });
 
