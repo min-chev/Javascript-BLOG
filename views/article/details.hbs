@@ -6,7 +6,9 @@
                 <p> {{article.content}} </p>
                 <small class="author"> {{article.author.fullName}} </small>
                 <footer>
-                {{#if isUserAuthorized}}
+                    <div class="pull-left"> {{# each article.tags}}
+                        <a class="btn btn-default btn-xs" href="/tag/{{this.name}}">{{ this.name }}</a> {{/each}} </div>
+                    {{#if isUserAuthorized}}
                     <div class="pull-right"><a class="btn btn-success btn-xs" href="/article/edit/{{article.id}}">Edit &raquo;</a>
                 <a class="btn btn-danger btn-xs" href="/article/delete/{{article.id}}">Delete &raquo;</a>
                 {{/if}}

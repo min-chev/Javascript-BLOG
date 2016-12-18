@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Article = require('./../models/Article');
 const Category = require('./../models/Category');
 const User = require('./../models/User');
+const Tag = require('./../models/Tag');
+
 
 
 
@@ -19,6 +21,11 @@ module.exports = {
                 if (err) {
                     console.log(err.message);
                 }
+                Tag.populate(category.articles, {path: 'tags'}, (err) => {
+                    if(err){
+                        console.log(err.message);
+                    }
+                });
                 res.render('home/article', {articles: category.articles})
 
             })
