@@ -7,6 +7,7 @@ const tagController = require('./../controllers/tag');
 
 
 
+
 module.exports = (app) => {
     app.get('/', homeController.index);
     app.get('/category/:id', homeController.listCategoryArticles);
@@ -74,6 +75,14 @@ module.exports = (app) => {
     app.post('/admin/category/delete/:id', adminController.category.deletePost);
 
     app.get('/tag/:name', tagController.listArticlesByTag);
+
+    app.get('/admin/tags/all', adminController.tags.all);
+
+    app.get('/admin/tags/edit/:id', adminController.tags.editGet);
+    app.post('/admin/tags/edit/:id', adminController.tags.editPost);
+
+   app.get('/admin/tags/delete/:id', adminController.tags.deleteGet);
+    app.post('/admin/tags/delete/:id', adminController.tags.deletePost);
 
 
 

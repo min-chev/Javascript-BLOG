@@ -54,6 +54,8 @@ module.exports = {
     deleteGet: (req, res) => {
         let id = req.params.id;
 
+
+
         Category.findById(id).then(category => {
             res.render('admin/category/delete', {category: category})
         })
