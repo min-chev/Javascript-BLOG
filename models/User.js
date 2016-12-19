@@ -80,7 +80,7 @@ module.exports = User;
 
 
 module.exports.seedAdmin = () => {
- let email = 'admin@softuni.bg';
+ let email = 'admin@myblog.com';
     User.findOne({email: email}).then(admin => {
 
         if(!admin){

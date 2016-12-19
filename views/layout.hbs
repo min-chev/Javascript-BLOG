@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head><title>SoftUni Blog</title>
+<head><title>My Blog</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script src="/javascripts/jquery-1.10.2.js"></script>
     <script src="/javascripts/bootstrap.js"></script>
@@ -25,19 +25,29 @@
                             </ul>
                         </li>
                     {{/if}}
-                    <li><a href="/user/details">Welcome({{user.email}})</a></li>
+                    <li><a href="/user/details/{{user.id}}">Welcome({{user.email}})</a></li>
                     <li><a href="/article/create">New Article</a></li>
                     <li><a href="/user/logout">Logout</a></li>
+                    <li><a href="/contact">Contact</a></li>
+
                 </ul>
             </div> {{/if}} {{#unless user}}
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="/user/register">Register</a></li>
                     <li><a href="/user/login">Login</a></li>
+                  <li><a href="/contact">Contact</a></li>
                 </ul>
-            </div> {{/unless}} </div>
+            </div> {{/unless}}
+
+        </div>
+
     </div>
-</header> {{{body}}} </body>
+
+</header>
+
+{{{body}}} </body>
+
 <footer>
     <div class="container modal-footer"><p>&copy; 2016 My Blog</p></div>
 </footer>

@@ -10,7 +10,11 @@ const tagController = require('./../controllers/tag');
 
 module.exports = (app) => {
     app.get('/', homeController.index);
+
     app.get('/category/:id', homeController.listCategoryArticles);
+
+    app.get('/contact', homeController.contact);
+
 
     app.get('/user/register', userController.registerGet);
 
@@ -21,6 +25,8 @@ module.exports = (app) => {
     app.post('/user/login', userController.loginPost);
 
     app.get('/user/logout', userController.logOut);
+
+    app.get('/user/details/:id', userController.details);
 
     app.get('/article/create', articleController.createGet);
 

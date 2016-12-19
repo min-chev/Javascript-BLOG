@@ -92,5 +92,19 @@ module.exports = {
     logOut: (req, res) => {
         req.logOut();
         res.redirect('/');
+    },
+    details: (req, res) => {
+        let id = req.params.id;
+
+        if(!req.isAuthenticated()) {
+            let returnUrl = `/user/details/${id}`;
+            req.session.returnUrl = returnUrl;
+
+            res.redirect('/user/login');
+
+        }
+        User.findById(id).then(user => {
+            res.render('user/details', {user: user})
+        })
     }
     };

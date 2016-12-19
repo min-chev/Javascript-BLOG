@@ -8,6 +8,8 @@
                 <p> {{#each this.tags }} <a class="btn btn-default btn-xs" href="/tag/{{this.name}}">{{ this.name }}</a> {{/each}} </p>
                 <small class="author"> {{ this.author.fullName }} </small>
                 <footer>
+                    <h5><div class="pull-left">  Visits: {{this.views}}&nbsp;&nbsp;&nbsp</div></h5>
+
                     <div class="pull-right"><a class="btn btn-default btn-xs" href="/article/details/{{this.id}}">Read
                         more &raquo;</a>
                     </div>

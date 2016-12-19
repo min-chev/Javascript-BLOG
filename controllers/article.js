@@ -89,7 +89,6 @@ module.exports = {
 
             res.redirect('/user/login');
 
-
         }
         Article.findById(id).populate('tags').then(article => {
             req.user.isInRole('Admin').then(isAdmin => {
