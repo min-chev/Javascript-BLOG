@@ -1,0 +1,22 @@
+<div class="container body-content">
+    <div class="well"><h2>All Comments</h2>
+        <div class="row">
+            <table class="table table-striped table-hover ">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Content</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody> {{#each comments}}
+                    <tr>
+                        <td>{{ this.id }}</td>
+                        <td>{{ this.content }}</td>
+                        <td><a href="/admin/comments/edit/{{this.id}}">Edit</a> <a
+                                href="/admin/comments/delete/{{this.id}}">Delete</a></td>
+                    </tr> {{/each}} </tbody>
+            </table>
+        </div>
+    </div>
+</div>

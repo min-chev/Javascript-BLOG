@@ -42,6 +42,10 @@ module.exports = (app) => {
 
     app.post('/article/delete/:id', articleController.deletePost);
 
+    app.get('/article/comment/:id', articleController.commentGet);
+
+    app.post('/article/comment/:id', articleController.commentPost);
+
 
 
     app.use((req, res, next) => {
@@ -87,8 +91,16 @@ module.exports = (app) => {
     app.get('/admin/tags/edit/:id', adminController.tags.editGet);
     app.post('/admin/tags/edit/:id', adminController.tags.editPost);
 
-   app.get('/admin/tags/delete/:id', adminController.tags.deleteGet);
+    app.get('/admin/tags/delete/:id', adminController.tags.deleteGet);
     app.post('/admin/tags/delete/:id', adminController.tags.deletePost);
+
+    app.get('/admin/comments/all', adminController.comments.all);
+
+    app.get('/admin/comments/edit/:id', adminController.comments.editGet);
+    app.post('/admin/comments/edit/:id', adminController.comments.editPost);
+
+    app.get('/admin/comments/delete/:id', adminController.comments.deleteGet);
+    app.post('/admin/comments/delete/:id', adminController.comments.deletePost);
 
 
 

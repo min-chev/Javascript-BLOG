@@ -1,0 +1,25 @@
+<div class="container body-content span=8 offset=2">
+    <div class="well">
+        <form class="form-horizontal" method="POST" action="/article/comment/{{id}}">
+            <fieldset>
+                <legend>Comment</legend>
+
+                <div class="form-group"><label class="col-sm-4 control-label" for="commentContent">Comment</label>
+                    <div class="col-sm-6"><textarea class="form-control" id="commentContent" rows="5" name="content"
+                                                    required></textarea></div>
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-sm-4 col-sm-offset-4"><button type="reset" class="btn btn-default">Cancel</button>
+                        <button type="submit" class="btn btn-success">Comment</button>
+
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+

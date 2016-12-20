@@ -9,16 +9,31 @@
                     <div class="pull-left"> {{# each article.tags}}
                         <a class="btn btn-default btn-xs" href="/tag/{{this.name}}">{{ this.name }}</a> {{/each}} </div>
 
+
                     {{#if isUserAuthorized}}
-                    <div class="pull-right"><a class="btn btn-success btn-xs" href="/article/edit/{{article.id}}">Edit &raquo;</a>
-                <a class="btn btn-danger btn-xs" href="/article/delete/{{article.id}}">Delete &raquo;</a>
-                {{/if}}
+                    <div class="pull-right"><a class="btn btn-success btn-xs"
+                                               href="/article/edit/{{article.id}}">Edit &raquo;</a>
+                        <a class="btn btn-danger btn-xs" href="/article/delete/{{article.id}}">Delete &raquo;</a>
+                    {{/if}}
 
-                        <a class="btn btn-default btn-xs pull-right" href="/category/{{article.category}}">Back &raquo;</a></div>
+                        <a class="btn btn-default btn-xs pull-right" href="/category/{{article.category}}">Back &raquo;</a>
+                    <a class="btn btn-default btn-xs pull-right" href="/article/comment/{{article.id}}">Comment</a></div>
 
-                     <h5><div class="pull-right">  Visits: {{article.views}}&nbsp;&nbsp;&nbsp</div></h5>
+
+                     <h5><div class="pull-right">  Views: {{article.views}}&nbsp;&nbsp;&nbsp</div></h5>
 
                 </footer>
+                <div class="col-sm-4">
+                    {{#each article.comments}}
+                        <div class="col-md-8">
+                            <comment>
+                                <header><h3>{{ this.author.fullName}}</h3>
+                                </header>
+                                <p> {{ this.content }} </p>
+                            </comment>
+                        </div>
+                    {{/each}}
+                </div>
 
             </article>
         </div>

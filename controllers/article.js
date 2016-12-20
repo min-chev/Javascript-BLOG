@@ -1,7 +1,10 @@
 const User = require("./../models/User");
 const Article = require("./../models/Article");
 const Category = require("./../models/Category");
+const Comment = require("./../models/Comment");
 const initializeTags = require("./../models/Tag").initializeTags;
+const mongoose = require('mongoose');
+
 
 
 
@@ -10,7 +13,7 @@ const initializeTags = require("./../models/Tag").initializeTags;
 module.exports = {
     createGet: (req, res) => {
 
-        if(!req.isAuthenticated()) {
+        if (!req.isAuthenticated()) {
             let returnUrl = '/article/create';
             req.session.returnUrl = returnUrl;
 
@@ -19,7 +22,7 @@ module.exports = {
 
         }
         Category.find({}).then(categories => {
-            res.render('article/create', {categories:categories});
+            res.render('article/create', {categories: categories});
         });
 
     },
@@ -29,16 +32,16 @@ module.exports = {
 
         let errorMsg = '';
 
-        if(!req.isAuthenticated()){
+        if (!req.isAuthenticated()) {
             errorMsg = 'You have to be logged in to create articles!'
-        }else if(!articleArgs.title){
+        } else if (!articleArgs.title) {
             errorMsg = 'Invalid title!';
-        }else if(!articleArgs.content){
+        } else if (!articleArgs.content) {
             errorMsg = 'Invalid content!'
         }
 
-        if(errorMsg){
-            res.render('article/create', { error: errorMsg} );
+        if (errorMsg) {
+            res.render('article/create', {error: errorMsg});
             return;
         }
 
@@ -47,7 +50,9 @@ module.exports = {
         articleArgs.views = 0;
         Article.create(articleArgs).then(article => {
 
-            let tagNames = articleArgs.tagNames.split(/\s+|,/).filter(tag => {return tag});
+            let tagNames = articleArgs.tagNames.split(/\s+|,/).filter(tag => {
+                return tag
+            });
             initializeTags(tagNames, article.id);
 
             article.prepareInsert();
@@ -60,13 +65,11 @@ module.exports = {
     details: (req, res) => {
         let id = req.params.id;
 
-
         Article.findById(id).then(article => {
-            Article.findOneAndUpdate({_id: id}, {views: article.views + 1}).populate('author tags').then(article => {
-
+            Article.findOneAndUpdate({_id: id}, {views: article.views + 1}).populate('author tags comments ').then(article => {
 
                 if (!req.user) {
-                    res.render('article/details', {article: article, isUserAuthorized: false});
+                    res.render('article/details', {article: article, comments: article.comments, isUserAuthorized: false});
                     return;
                 }
 
@@ -83,7 +86,7 @@ module.exports = {
     editGet: (req, res) => {
         let id = req.params.id;
 
-        if(!req.isAuthenticated()) {
+        if (!req.isAuthenticated()) {
             let returnUrl = `/article/edit/${id}`;
             req.session.returnUrl = returnUrl;
 
@@ -92,7 +95,7 @@ module.exports = {
         }
         Article.findById(id).populate('tags').then(article => {
             req.user.isInRole('Admin').then(isAdmin => {
-                if(!isAdmin && !req.user.isAuthor(article)){
+                if (!isAdmin && !req.user.isAuthor(article)) {
                     res.redirect('/');
                     return;
                 }
@@ -100,7 +103,9 @@ module.exports = {
             Category.find({}).then(categories => {
                 article.categories = categories;
 
-                article.tagNames = article.tags.map(tag => {return tag.name});
+                article.tagNames = article.tags.map(tag => {
+                    return tag.name
+                });
 
                 res.render('article/edit', article);
 
@@ -112,49 +117,42 @@ module.exports = {
     editPost: (req, res) => {
         let id = req.params.id;
 
-        if(!req.isAuthenticated()) {
+        if(!req.isAuthenticated()){
             let returnUrl = `/article/edit/${id}`;
             req.session.returnUrl = returnUrl;
 
             res.redirect('/user/login');
-
-
+            return;
         }
 
         let articleArgs = req.body;
 
         let errorMsg = '';
-
-        if(!articleArgs.title){
-            errorMsg = 'Invalid title!';
-        }else if(!articleArgs.content){
-            errorMsg = 'Invalid content!';
+        if (!articleArgs.title){
+            errorMsg = 'Article title cannot be empty!';
+        } else if (!articleArgs.content) {
+            errorMsg = 'Article content cannot be empty!'
         }
 
-        if(errorMsg){
-            res.render('article/edit', {error:errorMsg})
-        }else{
-
+        if(errorMsg) {
+            res.render('article/edit', {error: errorMsg})
+        } else {
             Article.findById(id).populate('category tags').then(article => {
-                if(!article.category.id !== articleArgs.category){
+                if(article.category.id !== articleArgs.category){
                     article.category.articles.remove(article.id);
                     article.category.save();
                 }
-
                 article.category = articleArgs.category;
                 article.title = articleArgs.title;
                 article.content = articleArgs.content;
 
-                let newTagNames = articleArgs.tags.split(/\s+|,/).filter(tag => {
-                    return tag
+                let newTagNames = articleArgs.tags.split(/\s+|,/).filter(tag => {return tag});
+
+                let oldTags = article.tags.filter(tag => {
+                    return newTagNames.indexOf(tag.name) === -1;
                 });
 
-                let oldTags = article.tags
-                    .filter(tag => {
-                        return newTagNames.indexOf(tag.name) === -1;
-                    });
-
-                for (let tag of oldTags) {
+                for(let tag of oldTags){
                     tag.deleteArticle(article.id);
                     article.deleteTag(tag.id);
                 }
@@ -162,16 +160,15 @@ module.exports = {
                 initializeTags(newTagNames, article.id);
 
                 Category.findById(article.category).then(category => {
-                    if (category.articles.indexOf(article.id) !== -1) {
+                    if (category.articles.indexOf(article.id) === -1) {
                         category.articles.push(article.id);
                         category.save();
                     }
-
                     res.redirect(`/article/details/${id}`)
                 })
 
-            })
 
+            });
         }
     },
 
@@ -179,7 +176,7 @@ module.exports = {
     deleteGet: (req, res) => {
         let id = req.params.id;
 
-        if(!req.isAuthenticated()) {
+        if (!req.isAuthenticated()) {
             let returnUrl = `/article/delete/${id}`;
             req.session.returnUrl = returnUrl;
 
@@ -189,12 +186,14 @@ module.exports = {
         }
         Article.findById(id).populate('category tags').then(article => {
             req.user.isInRole('Admin').then(isAdmin => {
-                if(!isAdmin&&!req.user.isAuthor(article)){
+                if (!isAdmin && !req.user.isAuthor(article)) {
                     res.redirect('/');
                     return;
                 }
             });
-            article.tagNames = article.tags.map(tag => {return tag.name});
+            article.tagNames = article.tags.map(tag => {
+                return tag.name
+            });
             res.render('article/delete', article);
         })
     },
@@ -216,6 +215,68 @@ module.exports = {
             article.prepareDelete();
             res.redirect('/');
         });
+    },
+
+
+    commentGet: (req, res) => {
+        let id = req.params.id;
+
+        if (!req.isAuthenticated()) {
+            let returnUrl = `/article/comment/${id}`;
+            req.session.returnUrl = returnUrl;
+
+            res.redirect('/user/login');
+            return;
+        }
+
+        Article.findById(id).then(article => {
+            res.render('article/comment', article);
+        });
+
+
+    },
+
+    commentPost: (req, res) => {
+        let id = req.params.id;
+
+        let commentArgs = req.body;
+
+
+        let errorMsg = '';
+
+        if (!req.isAuthenticated()) {
+            errorMsg = 'You have to be logged in to comment!'
+        } else if (!commentArgs.content) {
+            errorMsg = 'Invalid content!';
+        }
+
+        if (errorMsg) {
+            res.render(`article/comment/${id}`, {error: errorMsg});
+            return;
+        }
+
+
+
+        commentArgs.author = req.user.id;
+        commentArgs.article = id;
+
+        Comment.create(commentArgs).then(comment => {
+
+            let User = mongoose.model('User');
+            User.findById(commentArgs.author).then(user => {
+                user.comments.push(comment.id);
+                user.save();
+            });
+            let Article = mongoose.model('Article');
+            Article.findById(commentArgs.article).then(article => {
+                article.comments.push(comment.id);
+                article.save();
+            });
+            res.redirect(`/article/details/${id}`);
+
+        })
+
+
     }
 };
 

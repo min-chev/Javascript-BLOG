@@ -19,6 +19,7 @@ module.exports = (config) => {
     require('./../models/Article');
     require('./../models/Category');
     require('./../models/Tag');
+    require('./../models/Comment');
     require('./../models/Role').initialize();
     require('./../models/User').seedAdmin();
 
