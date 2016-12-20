@@ -1,4 +1,4 @@
-
+const mongoose = require('mongoose');
 const Comment = require('mongoose').model('Comment');
 
 
@@ -49,6 +49,13 @@ module.exports = {
         let id = req.params.id;
 
         Comment.findOneAndRemove({_id: id}).then(comment => {
+            let Article = mongoose.model('Article');
+
+            Article.findById(comment.article).then(article => {
+                article.comments.remove(comment);
+                article.save();
+            });
+
             res.redirect('/admin/comments/all')
         })
 

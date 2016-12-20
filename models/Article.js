@@ -8,7 +8,7 @@ let articleSchema = mongoose.Schema({
     author : {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User'},
     category : {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Category'},
     tags : [{type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Tag'}],
-    comments :[ {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Comment'}],
+    comments :[{type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Comment'}],
     views : {type: Number, defaultValue: 0},
     date : {type: Date, default: Date.now()},
 });

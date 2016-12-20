@@ -4,8 +4,8 @@ const User = require("./../models/User");
 
 
 let commentsSchema = mongoose.Schema({
+    name: {type: String, required: true, unique: false},
     content: {type: String, required: true, unique: false},
-    author : {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User'},
     article : {type: mongoose.Schema.Types.ObjectId, ref:'Article'},
 
 

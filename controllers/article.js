@@ -66,19 +66,39 @@ module.exports = {
         let id = req.params.id;
 
         Article.findById(id).then(article => {
-            Article.findOneAndUpdate({_id: id}, {views: article.views + 1}).populate('author tags comments ').then(article => {
+            Article.findOneAndUpdate({_id: id}, {views: article.views + 1}).populate('author tags comments').then(article => {
+
+
+                let CommentsExist = false;
+
+                if (article.comments.length >0) {
+                    CommentsExist = true;
+                }
+
 
                 if (!req.user) {
-                    res.render('article/details', {article: article, comments: article.comments, isUserAuthorized: false});
+
+                    res.render('article/details', {
+                        article: article,
+                        isUserAuthorized: false,
+                        CommentsExist: CommentsExist
+                    });
                     return;
                 }
 
 
                 req.user.isInRole('Admin').then(isAdmin => {
                     let isUserAuthorized = isAdmin || req.user.isAuthor(article);
-                    res.render('article/details', {article: article, isUserAuthorized: isUserAuthorized});
+
+
+                    res.render('article/details', {
+                        article: article,
+                        isUserAuthorized: isUserAuthorized,
+                        CommentsExist: CommentsExist
+                    });
 
                 })
+
             });
         })
     },
@@ -146,6 +166,8 @@ module.exports = {
                 article.title = articleArgs.title;
                 article.content = articleArgs.content;
 
+
+
                 let newTagNames = articleArgs.tags.split(/\s+|,/).filter(tag => {return tag});
 
                 let oldTags = article.tags.filter(tag => {
@@ -164,6 +186,7 @@ module.exports = {
                         category.articles.push(article.id);
                         category.save();
                     }
+                    article.save();
                     res.redirect(`/article/details/${id}`)
                 })
 
@@ -221,13 +244,6 @@ module.exports = {
     commentGet: (req, res) => {
         let id = req.params.id;
 
-        if (!req.isAuthenticated()) {
-            let returnUrl = `/article/comment/${id}`;
-            req.session.returnUrl = returnUrl;
-
-            res.redirect('/user/login');
-            return;
-        }
 
         Article.findById(id).then(article => {
             res.render('article/comment', article);
@@ -241,11 +257,10 @@ module.exports = {
 
         let commentArgs = req.body;
 
-
         let errorMsg = '';
 
-        if (!req.isAuthenticated()) {
-            errorMsg = 'You have to be logged in to comment!'
+        if (!commentArgs.name) {
+            errorMsg = 'Invalid name!'
         } else if (!commentArgs.content) {
             errorMsg = 'Invalid content!';
         }
@@ -257,16 +272,11 @@ module.exports = {
 
 
 
-        commentArgs.author = req.user.id;
+
         commentArgs.article = id;
 
         Comment.create(commentArgs).then(comment => {
 
-            let User = mongoose.model('User');
-            User.findById(commentArgs.author).then(user => {
-                user.comments.push(comment.id);
-                user.save();
-            });
             let Article = mongoose.model('Article');
             Article.findById(commentArgs.article).then(article => {
                 article.comments.push(comment.id);
